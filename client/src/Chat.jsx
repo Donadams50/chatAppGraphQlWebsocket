@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import {
   ApolloClient,
@@ -6,14 +6,17 @@ import {
   ApolloProvider,
   useQuery,
   gql,
-  useMutation
-} from '@apollo/client';
+  useMutation,
+} from "@apollo/client";
 
-import { Container, Row, Col, FormInput, Button } from 'shards-react';
+import dotenv from "dotenv";
+dotenv.config();
+
+import { Container, Row, Col, FormInput, Button } from "shards-react";
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/',
-  cache: new InMemoryCache()
+  uri: process.env.serverUrl,
+  cache: new InMemoryCache(),
 });
 
 const GET_MESSAGES = gql`
@@ -26,7 +29,7 @@ const GET_MESSAGES = gql`
   }
 `;
 
-const POST_MESSAGES = gql`
+const POST_MESSAGE = gql`
   mutation ($user: String!, $content: String!) {
     postMessage(user: $user, content: $content)
   }
@@ -42,10 +45,11 @@ const Messages = ({ user }) => {
     <>
       {data.messages.map(({ id, user: messageUser, content }) => (
         <div
+          key={id}
           style={{
-            display: 'flex',
-            justifyContent: user === messageUser ? 'flex-end' : 'flex-start',
-            paddingBottom: '1em'
+            display: "flex",
+            justifyContent: user === messageUser ? "flex-end" : "flex-start",
+            paddingBottom: "1em",
           }}
         >
           {user !== messageUser && (
@@ -53,12 +57,12 @@ const Messages = ({ user }) => {
               style={{
                 height: 50,
                 width: 50,
-                marginRight: '0.5em',
-                border: '2px solid #e5e6ea',
+                marginRight: "0.5em",
+                border: "2px solid #e5e6ea",
                 borderRadius: 25,
-                textAlign: 'center',
-                fontSize: '18pt',
-                paddingTop: 5
+                textAlign: "center",
+                fontSize: "18pt",
+                paddingTop: 5,
               }}
             >
               {messageUser.slice(0, 2).toUpperCase()}
@@ -67,11 +71,11 @@ const Messages = ({ user }) => {
 
           <div
             style={{
-              background: user === messageUser ? '#58bf56' : '#e5e6ea',
-              color: user === messageUser ? 'white' : '#black',
-              padding: '1em',
-              borderRadius: '1em',
-              maxWidth: '60%'
+              background: user === messageUser ? "#58bf56" : "#e5e6ea",
+              color: user === messageUser ? "white" : "#black",
+              padding: "1em",
+              borderRadius: "1em",
+              maxWidth: "60%",
             }}
           >
             {content}
@@ -83,21 +87,21 @@ const Messages = ({ user }) => {
 };
 const Chat = () => {
   const [state, stateSet] = React.useState({
-    user: 'Olasumbo',
-    content: ''
+    user: "Olasumbo",
+    content: "",
   });
 
-  const [postMessage] = useMutation(POST_MESSAGES);
+  const [postMessage] = useMutation(POST_MESSAGE);
 
   const onSend = () => {
     if (state.content.length > 0) {
       postMessage({
-        variables: state
+        variables: state,
       });
     }
     stateSet({
       ...state,
-      content: ''
+      content: "",
     });
   };
   return (
@@ -111,7 +115,7 @@ const Chat = () => {
             onChange={(evt) =>
               stateSet({
                 ...state,
-                user: evt.target.value
+                user: evt.target.value,
               })
             }
           />
@@ -123,26 +127,27 @@ const Chat = () => {
             onChange={(evt) =>
               stateSet({
                 ...state,
-                content: evt.target.value
+                content: evt.target.value,
               })
             }
             onKeyUp={(evt) => {
-              if (evt.keyCode === 13) {
+              let ENTER_KEY_CODE = 13;
+              if (evt.keyCode === ENTER_KEY_CODE) {
                 onSend();
               }
             }}
           />
         </Col>
         <Col xs={2}>
-          <Button onClick={() => onSend()}>Send</Button>
+          <Button onClick={onSend}>Send</Button>
         </Col>
       </Row>
     </Container>
   );
 };
 
-export default () => (
+export default function MyComponent() {
   <ApolloProvider client={client}>
     <Chat />
-  </ApolloProvider>
-);
+  </ApolloProvider>;
+}
