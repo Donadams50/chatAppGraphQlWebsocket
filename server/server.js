@@ -1,4 +1,4 @@
-const { GraphQLServer} = require('graphql-yoga')
+const { GraphQLServer } = require('graphql-yoga')
 const messages = []
 
 const typeDefs = `
@@ -15,30 +15,29 @@ const typeDefs = `
     type Mutation {
         postMessage (user: String!, content: String!): ID!
     }
-`;
+`
 
 const resolvers = {
-    Query: {
-        messages: () => messages
-    },
+  Query: {
+    messages: () => messages
+  },
 
-    Mutation: {
-        postMessage:(parent, {user, content}) => {
-            const id = messages.length;
-            messages.push({
-                id,
-                user,
-                content
-            });
-            return id
-        }
+  Mutation: {
+    postMessage: ({ user, content }) => {
+      const id = messages.length
+      messages.push({
+        id,
+        user,
+        content
+      })
+      return id
     }
+  }
 
 }
 
+const server = new GraphQLServer({ typeDefs, resolvers })
 
-const server = new GraphQLServer({typeDefs, resolvers});
-
-server.start(({port}) => {
-    console.log(`Server on http:localhost:${port}`)
+server.start(({ port }) => {
+  console.log(`Server on http:localhost:${port}`)
 })
