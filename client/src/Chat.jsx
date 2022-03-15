@@ -92,7 +92,7 @@ const Messages = ({ user }) => {
 };
 const Chat = () => {
   const [state, stateSet] = React.useState({
-    user: process.env.defaultUsername,
+    user: 'Olasumbo',
     content: ''
   });
 
