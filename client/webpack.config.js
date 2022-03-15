@@ -14,7 +14,7 @@ module.exports = {
   },
 
   devServer: {
-    port: process.env.devServerPort
+    port: process.env.devServerPort || 'http://localhost:8080/'
   },
 
   module: {

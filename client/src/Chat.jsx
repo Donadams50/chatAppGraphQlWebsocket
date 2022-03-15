@@ -15,7 +15,7 @@ import { WebSocketLink } from '@apollo/client/link/ws';
 import { Container, Row, Col, FormInput, Button } from 'shards-react';
 
 const link = new WebSocketLink({
-  uri: `ws://${process.env.websockerUrl}`,
+  uri: `ws://${process.env.websockerUrl || 'localhost:4000'}`,
   options: {
     reconnect: true
   }
@@ -23,7 +23,7 @@ const link = new WebSocketLink({
 
 const client = new ApolloClient({
   link,
-  uri: process.env.serverUrl,
+  uri: process.env.serverUrl || 'http://localhost:4000/',
   cache: new InMemoryCache()
 });
 
@@ -92,7 +92,7 @@ const Messages = ({ user }) => {
 };
 const Chat = () => {
   const [state, stateSet] = React.useState({
-    user: 'Olasumbo',
+    user: process.env.defaultUsername || 'Olasumbo',
     content: ''
   });
 
