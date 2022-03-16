@@ -1,64 +1,66 @@
-/* eslint-disable no-undef */
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-import ModuleFederationPlugin from "webpack/lib/container/ModuleFederationPlugin";
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+// webpack.config.js
+const Dotenv = require('dotenv-webpack');
 
-const deps = require("./package.json").dependencies;
+const deps = require('./package.json').dependencies;
 module.exports = {
   output: {
-    publicPath: "http://localhost:8080/",
+    publicPath: process.env.mainUrl
   },
 
   resolve: {
-    extensions: [".jsx", ".js", ".json"],
+    extensions: ['.jsx', '.js', '.json']
   },
 
   devServer: {
-    port: 8080,
+    port: process.env.devServerPort || 'http://localhost:8080/'
   },
 
   module: {
     rules: [
       {
         test: /\.m?js/,
-        type: "javascript/auto",
+        type: 'javascript/auto',
         resolve: {
-          fullySpecified: false,
-        },
+          fullySpecified: false
+        }
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
-        },
-      },
-    ],
+          loader: 'babel-loader'
+        }
+      }
+    ]
   },
 
   plugins: [
     new ModuleFederationPlugin({
-      name: "starter",
-      filename: "remoteEntry.js",
+      name: 'starter',
+      filename: 'remoteEntry.js',
       remotes: {},
       exposes: {},
       shared: {
         ...deps,
         react: {
           singleton: true,
-          requiredVersion: deps.react,
+          requiredVersion: deps.react
         },
-        "react-dom": {
+        'react-dom': {
           singleton: true,
-          requiredVersion: deps["react-dom"],
-        },
-      },
+          requiredVersion: deps['react-dom']
+        }
+      }
     }),
     new HtmlWebPackPlugin({
-      template: "./src/index.html",
+      template: './src/index.html'
     }),
-  ],
+    new Dotenv()
+  ]
 };

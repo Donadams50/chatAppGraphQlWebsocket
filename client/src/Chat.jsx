@@ -1,26 +1,34 @@
-import React from "react";
+/* eslint-disable react/display-name */
+/* eslint-disable react/prop-types */
+import React from 'react';
 
 import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  useQuery,
+  useSubscription,
   gql,
-  useMutation,
-} from "@apollo/client";
+  useMutation
+} from '@apollo/client';
 
-import dotenv from "dotenv";
-dotenv.config();
+import { WebSocketLink } from '@apollo/client/link/ws';
+import { Container, Row, Col, FormInput, Button } from 'shards-react';
 
-import { Container, Row, Col, FormInput, Button } from "shards-react";
+const link = new WebSocketLink({
+  uri: `ws://${process.env.websockerUrl || 'localhost:4000'}`,
+  options: {
+    reconnect: true
+  }
+});
 
 const client = new ApolloClient({
-  uri: process.env.serverUrl,
-  cache: new InMemoryCache(),
+  link,
+  uri: process.env.serverUrl || 'http://localhost:4000/',
+  cache: new InMemoryCache()
 });
 
 const GET_MESSAGES = gql`
-  query {
+  subscription {
     messages {
       content
       id
@@ -36,7 +44,7 @@ const POST_MESSAGE = gql`
 `;
 
 const Messages = ({ user }) => {
-  const { data } = useQuery(GET_MESSAGES);
+  const { data } = useSubscription(GET_MESSAGES);
   if (!data) {
     return null;
   }
@@ -47,37 +55,34 @@ const Messages = ({ user }) => {
         <div
           key={id}
           style={{
-            display: "flex",
-            justifyContent: user === messageUser ? "flex-end" : "flex-start",
-            paddingBottom: "1em",
-          }}
-        >
+            display: 'flex',
+            justifyContent: user === messageUser ? 'flex-end' : 'flex-start',
+            paddingBottom: '1em'
+          }}>
           {user !== messageUser && (
             <div
               style={{
                 height: 50,
                 width: 50,
-                marginRight: "0.5em",
-                border: "2px solid #e5e6ea",
+                marginRight: '0.5em',
+                border: '2px solid #e5e6ea',
                 borderRadius: 25,
-                textAlign: "center",
-                fontSize: "18pt",
-                paddingTop: 5,
-              }}
-            >
+                textAlign: 'center',
+                fontSize: '18pt',
+                paddingTop: 5
+              }}>
               {messageUser.slice(0, 2).toUpperCase()}
             </div>
           )}
 
           <div
             style={{
-              background: user === messageUser ? "#58bf56" : "#e5e6ea",
-              color: user === messageUser ? "white" : "#black",
-              padding: "1em",
-              borderRadius: "1em",
-              maxWidth: "60%",
-            }}
-          >
+              background: user === messageUser ? '#58bf56' : '#e5e6ea',
+              color: user === messageUser ? 'white' : '#black',
+              padding: '1em',
+              borderRadius: '1em',
+              maxWidth: '60%'
+            }}>
             {content}
           </div>
         </div>
@@ -87,8 +92,8 @@ const Messages = ({ user }) => {
 };
 const Chat = () => {
   const [state, stateSet] = React.useState({
-    user: "Olasumbo",
-    content: "",
+    user: process.env.defaultUsername || 'Olasumbo',
+    content: ''
   });
 
   const [postMessage] = useMutation(POST_MESSAGE);
@@ -96,12 +101,12 @@ const Chat = () => {
   const onSend = () => {
     if (state.content.length > 0) {
       postMessage({
-        variables: state,
+        variables: state
       });
     }
     stateSet({
       ...state,
-      content: "",
+      content: ''
     });
   };
   return (
@@ -115,7 +120,7 @@ const Chat = () => {
             onChange={(evt) =>
               stateSet({
                 ...state,
-                user: evt.target.value,
+                user: evt.target.value
               })
             }
           />
@@ -127,7 +132,7 @@ const Chat = () => {
             onChange={(evt) =>
               stateSet({
                 ...state,
-                content: evt.target.value,
+                content: evt.target.value
               })
             }
             onKeyUp={(evt) => {
@@ -146,8 +151,8 @@ const Chat = () => {
   );
 };
 
-export default function MyComponent() {
+export default () => (
   <ApolloProvider client={client}>
     <Chat />
-  </ApolloProvider>;
-}
+  </ApolloProvider>
+);
